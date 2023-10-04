@@ -36,3 +36,25 @@
     transform: rotate(360deg);
   }
 }
+
+.menus{
+  width: 200px;
+}
+
+.buttons-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.menu-button{
+  flex: 1;
+  border: 1px solid black;
+  color: black;
+  background-color: transparent;
+  margin-top: 2px;
+}
+
+.menu-button.trash {
+  flex: 0.5; /* Adjust the flex value for the trash button to make it smaller if needed */
+}
+
