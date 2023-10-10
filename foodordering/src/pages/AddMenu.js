@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useHref} from "react-router-dom";
 import { Button, Modal, Form, Select, Grid, TextArea } from "semantic-ui-react";
-import AuthContext from "../AuthContext";
+import { AuthContext } from '../AuthContext';
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",

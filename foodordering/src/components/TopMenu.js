@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Container, Menu } from "semantic-ui-react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthContext from "../AuthContext";
+import { AuthContext } from '../AuthContext';
 
 export function TopMenu() {
   const { appState, setAppState } = useContext(AuthContext);

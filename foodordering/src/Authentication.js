@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
-import AuthContext from './AuthContext';
+import {AuthContext} from './AuthContext';
 
 const Authentication = ({ children }) => {
 

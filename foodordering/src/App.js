@@ -3,7 +3,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { TopMenu } from "./components/TopMenu";
 import { Container } from "semantic-ui-react";
-import AuthContext from "./AuthContext";
+import { AuthContext } from './AuthContext';
 import Authentication from "./Authentication";
 import { LoginPage } from "./pages/LoginPage";
 import { ViewMenus } from "./pages/ViewMenus";
@@ -12,6 +12,11 @@ import "semantic-ui-css/semantic.min.css";
 import { AddMenu } from "./pages/AddMenu";
 import { CreateUserPage } from "./pages/CreateUserPage";
 import { ViewUsers } from "./pages/ViewUsers";
+import { AddMeal } from "./pages/AddMeal";
+
+import { AuthProvider } from './AuthContext';
+import { ViewOrders } from "./pages/ViewOrders";
+import { HomePage } from "./pages/HomePage";
 
 function App() {
   var initState = {
@@ -64,12 +69,13 @@ function App() {
                 <Route path="/login/" element={<LoginPage />} />
                 <Route path="/logout/" element={<LoginPage />} />
                 <Route path="/users/user/create" element={<CreateUserPage />} />
-                <Route path="/" element={<LoginPage />} />
-                <Route path="/meals/all/:id" element={<ViewMeals />} />
-                <Route path="/menus/:id/meals" element={<ViewMeals />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/menus/:id" element={<ViewMeals />} />
                 <Route path="/menus/create" element={<AddMenu />} />
                 <Route path="/menus" element={<ViewMenus />} />
                 <Route path="/users" element={<ViewUsers />} />
+                <Route path="/meals/create/:menuId" element={<AddMeal />} />
+                <Route path="/orders" element={<ViewOrders />} />
               </Routes>
             </div>
           </HashRouter>

@@ -11,7 +11,7 @@ export function ViewUsers() {
       .then((response) => response.json())
       .then(setUsers)
       .catch((error) => console.error("Error fetching users:", error));
-  });
+  },[]);
 
   const renderUsers = () => {
     return users.map((user) => (

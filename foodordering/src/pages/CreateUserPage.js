@@ -1,6 +1,6 @@
 import React, { useState, useContext, history } from "react";
 import { useHref, useNavigate, NavLink } from "react-router-dom";
-import AuthContext from "../AuthContext";
+import { AuthContext } from '../AuthContext';
 
 import {
   Button,
