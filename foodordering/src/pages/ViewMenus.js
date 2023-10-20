@@ -30,41 +30,33 @@ export function ViewMenus() {
   const [totalAmount, setTotalAmount] = useState("");
   const [orderItems, setOrderItems] = useState([]);
   const [unconfirmedOrders, setUnconfirmedOrders] = useState([]);
-  const [createdOrderId, setCreatedOrderId] = useState(null);
+  const [createdOrderId, setCreatedOrderId] = useState("");
   const [selectedOrderItems, setSelectedOrderItems] = useState([]);
+  const [latestOrder, setLatestOrder] = useState({});
 
   const fetchMenus = async () => {
     fetch("/api/v1/menus")
       .then((response) => response.json())
       .then((jsonResponse) => setMenus(jsonResponse));
   };
- 
+
   const fetchUnconfirmedOrders = async () => {
     fetch("/api/v1/foodOrders/unconfirmed")
-    .then((response) => response.json())
-    .then((data) => setUnconfirmedOrders(data))
-    .catch((error) =>
-      console.error("Error fetching unconfirmed orders:", error)
-    );
-};
-
+      .then((response) => response.json())
+      .then((data) => setUnconfirmedOrders(data))
+      .catch((error) =>
+        console.error("Error fetching unconfirmed orders:", error)
+      );
+    console.log("UNCONFIRMED ITEMS: ", unconfirmedOrders);
+  };
 
   const handleCreateNewOrderButton = () => {
     const currentDate = new Date();
 
-    const updatedOrderItems = orderItems.map((item) => ({
-      ...item,
-      meal: {
-        id: item.meal.id,
-        title: item.meal.title,
-        description: item.meal.description
-      }
-    }));
-
     const newOrder = {
       createdDate: currentDate.toISOString(),
       totalAmount,
-      orderItems: updatedOrderItems,
+      orderItems,
       is_confirmed: false,
     };
 
@@ -72,25 +64,34 @@ export function ViewMenus() {
       method: "POST",
       headers: JSON_HEADERS,
       body: JSON.stringify(newOrder),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Food order created successfully!", data);
-        setCreatedOrderId(data.id); 
-        setUnconfirmedOrders((prevUnconfirmedOrders) => [
-          ...prevUnconfirmedOrders,
-          data,
-        ]);
-      })
-      .catch((error) => {
-        console.error("Error creating order:", error);
+    });
+    fetchUnconfirmedOrders();
+  };
+
+  const handleConfirmOrder = async (orderId) => {
+    try {
+      const response = await fetch(`/api/v1/foodOrders/${orderId}/confirm`, {
+        method: "PUT",
       });
+
+      if (response.ok) {
+        // Handle successful confirmation
+        console.log("Order confirmed successfully!");
+      } else {
+        // Handle error response
+        console.error("Error confirming order:", response.statusText);
+      }
+    } catch (error) {
+      console.error("An error occurred while confirming the order:", error);
+    }
+    fetchUnconfirmedOrders();
   };
 
   useEffect(() => {
     fetchMenus();
     fetchUnconfirmedOrders();
   }, []);
+
 
   const deleteMenus = async (id) => {
     fetch(`/api/v1/menus/` + id, {
@@ -223,7 +224,14 @@ export function ViewMenus() {
 
           <Grid.Column width={4}>
             {unconfirmedOrders.map((order) => (
-              <Message key={order.id}>
+              <Message
+                key={order.id}
+                style={{
+                  color: "pink",
+                  backgroundColor: "transparent",
+                  border: "1px solid pink",
+                }}
+              >
                 <b>Order ID: {order.id}</b>
                 <br />
                 {order.createdDate}
@@ -249,6 +257,17 @@ export function ViewMenus() {
                 ))}
               </Table.Body>
             </Table>
+            <Button
+              className="mt-2 menu-button"
+              style={{
+                color: "pink",
+                backgroundColor: "transparent",
+                border: "1px solid pink",
+              }}
+              onClick={() => handleConfirmOrder(unconfirmedOrders[0].id)}
+            >
+              Confirm order
+            </Button>
           </Grid.Column>
         </Grid.Row>
       </Grid>

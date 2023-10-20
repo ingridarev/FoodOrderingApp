@@ -48,24 +48,40 @@ export function ViewMeals() {
     }
   };
 
-  useEffect(() => {
+  const fetchUnconfirmedOrders = async () => {
     fetch("/api/v1/foodOrders/unconfirmed")
       .then((response) => response.json())
       .then((data) => setUnconfirmedOrders(data))
       .catch((error) =>
         console.error("Error fetching unconfirmed orders:", error)
       );
+    console.log("UNCONFIRMED ITEMS: ", unconfirmedOrders);
+  };
+
+  useEffect(() => {
+    fetchUnconfirmedOrders();
   }, []);
+
+  const fetchMenu = async () => {
+    fetch(`/api/v1/menus/${params.id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      setMenu(data);
+      setMeals(data.meals);
+    })
+    .catch((error) => console.error("Error fetching menu:", error));
+  }
 
   useEffect(() => {
     if (params.id) {
-      fetch(`/api/v1/menus/${params.id}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setMenu(data);
-          setMeals(data.meals);
-        })
-        .catch((error) => console.error("Error fetching menu:", error));
+      fetchMenu();
+      // fetch(`/api/v1/menus/${params.id}`)
+      //   .then((response) => response.json())
+      //   .then((data) => {
+      //     setMenu(data);
+      //     setMeals(data.meals);
+      //   })
+      //   .catch((error) => console.error("Error fetching menu:", error));
 
       if (unconfirmedOrders.length > 0) {
         const unconfOrder = unconfirmedOrders[0];
@@ -85,36 +101,27 @@ export function ViewMeals() {
     if (selectedMeal && unconfirmedOrders.length > 0) {
       const unconfOrder = unconfirmedOrders[0];
 
-      const newOrderItem = {
-        mealId: mealId,
-        quantity: quantity[mealId] !== "" ? quantity[mealId] : 0,
-        orderId: unconfOrder.id,
-        title: selectedMeal.title,
-      };
+      const newQuantity = quantity[mealId] !== "" ? quantity[mealId] : 0;
 
       try {
         const createOrderItemResponse = await fetch(
-          `/api/v1/orderItems/${unconfOrder.id}/${mealId}/newOrderItem`,
+          `/api/v1/orderItems/${unconfOrder.id}/${mealId}/${newQuantity}/newOrderItem`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(newOrderItem),
           }
         );
 
         if (createOrderItemResponse.ok) {
-          console.log("Order item created successfully:", newOrderItem);
-
-          setOrderItems((prevOrderItems) => [
-            ...prevOrderItems,
-            {
-              mealId: mealId,
-              title: selectedMeal.title,
-              quantity: newOrderItem.quantity,
-            },
-          ]);
+          fetch("/api/v1/foodOrders/unconfirmed")
+            .then((response) => response.json())
+            .then((data) => setUnconfirmedOrders(data))
+            .catch((error) =>
+              console.error("Error fetching unconfirmed orders:", error)
+            );
+          setQuantity("");
         } else {
           console.error(
             "Failed to create order item:",
@@ -128,10 +135,6 @@ export function ViewMeals() {
       console.error("Selected meal is undefined or no unconfirmed orders.");
     }
   };
-
-  // const handleQuantityChange = (e) => {
-  //   setQuantity(e.target.value);
-  // };
 
   const handleQuantityChange = (mealId, e) => {
     const newQuantity = {
@@ -181,6 +184,26 @@ export function ViewMeals() {
     ));
   };
 
+  const handleConfirmOrder = async (orderId) => {
+    try {
+      const response = await fetch(`/api/v1/foodOrders/${orderId}/confirm`, {
+        method: "PUT",
+      });
+
+      if (response.ok) {
+        // Handle successful confirmation
+        console.log("Order confirmed successfully!");
+      } else {
+        // Handle error response
+        console.error("Error confirming order:", response.statusText);
+      }
+    } catch (error) {
+      console.error("An error occurred while confirming the order:", error);
+    }
+    fetchUnconfirmedOrders();
+    setOrderItems([]);
+  };
+
   return (
     <Container className="meals mt-3">
       <Grid columns={2} divided>
@@ -227,14 +250,15 @@ export function ViewMeals() {
                       <Table.Cell>{item.meal.title}</Table.Cell>
                       <Table.Cell>{item.quantity}</Table.Cell>
                       <Table.Cell>
-                        <Button basic 
+                        <Button
+                          basic
                           style={{
                             color: "grey",
                             backgroundColor: "transparent",
                             border: "1px solid grey",
                           }}
                         >
-                          <Icon name="trash" size="small"/>
+                          <Icon name="trash" size="small" />
                         </Button>
                       </Table.Cell>
                     </Table.Row>
@@ -242,6 +266,17 @@ export function ViewMeals() {
                 })}
               </Table.Body>
             </Table>
+            <Button
+              className="mt-2 menu-button"
+              style={{
+                color: "pink",
+                backgroundColor: "transparent",
+                border: "1px solid pink",
+              }}
+              onClick={() => handleConfirmOrder(unconfirmedOrders[0].id)}
+            >
+              Confirm order
+            </Button>
           </Grid.Column>
         </Grid.Row>
       </Grid>
