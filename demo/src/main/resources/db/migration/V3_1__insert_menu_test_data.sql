@@ -1,0 +1,9 @@
+INSERT
+INTO
+  menu
+  (title)
+VALUES
+  ('Drinks'),
+    ('Breakfast'),
+      ('Deserts'),
+        ('Dinner');
